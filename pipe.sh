@@ -1,6 +1,6 @@
 #!/bin/bash
 
-loading_step():
+def loading_step():
     print("Mengunduh dan menjalankan skrip display...")
     
 
@@ -23,23 +23,6 @@ loading_step():
 
 loading_step()
 
-
-# Fungsi untuk menampilkan pesan dengan warna yang berubah
-welcome_message() {
-    local message="Welcome to JAWA PRIDE AIRDROP SCRIPT { https://t.me/AirdropJP_JawaPride } "
-    local colors=("31" "32" "33" "34" "35" "36")
-    
-    for ((i=0; i<10; i++)); do
-        # Menentukan warna acak dari array
-        color=${colors[$((RANDOM % ${#colors[@]}))]}
-        
-        # Menampilkan pesan dengan warna yang berubah
-        echo -e "\033[${color}m$message\033[0m"
-        sleep 0.5
-    done
-}
-
-# Fungsi lainnya
 glowing_text() {
     logo="Logo"
     echo -e "\033[1;37m$logo\033[0m"
@@ -84,11 +67,7 @@ progress_bar() {
     sleep 0.5
 }
 
-# Menjalankan fungsi welcome_message terlebih dahulu
 clear
-welcome_message
-
-# Lanjutkan dengan fungsi lainnya setelah welcome_message
 loading_step
 glowing_text
 perspective_shift
@@ -97,6 +76,8 @@ random_line_move
 pixelated_glitch
 machine_sounds
 progress_bar
+
+clear
 
 # Update dan upgrade sistem
 sudo apt update && sudo apt upgrade -y
