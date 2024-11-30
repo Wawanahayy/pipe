@@ -1,17 +1,27 @@
 #!/bin/bash
 
-loading_step() {
-    echo "Mengunduh dan menjalankan skrip display..."
-    url="https://raw.githubusercontent.com/Wawanahayy/JawaPride-all.sh/refs/heads/main/display.sh"
+def loading_step():
+    print("Mengunduh dan menjalankan skrip display...")
     
-    curl -s -o display.sh "$url"
-    
-    if [ $? -eq 0 ]; then
-        bash display.sh
-    else
-        echo "Gagal mengunduh skrip display.sh"
-    fi
-}
+
+    url = "https://raw.githubusercontent.com/Wawanahayy/JawaPride-all.sh/refs/heads/main/display.sh"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  
+        script_content = response.text
+        
+        # Menyimpan skrip yang diunduh ke file sementara
+        with open("display.sh", "w") as file:
+            file.write(script_content)
+        
+   
+        os.system("bash display.sh")
+        
+    except requests.exceptions.RequestException as e:
+        print(f"Error saat mengunduh skrip: {e}")
+
+
+loading_step()
 
 glowing_text() {
     logo="Logo"
