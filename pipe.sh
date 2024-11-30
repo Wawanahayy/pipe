@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# Mengunduh logo dari URL
-logo=$(curl -s https://raw.githubusercontent.com/Wawanahayy/JawaPride-all.sh/refs/heads/main/display.sh)
+loading_step() {
+    echo "Mengunduh dan menjalankan skrip display..."
+    curl -s https://raw.githubusercontent.com/Wawanahayy/JawaPride-all.sh/refs/heads/main/display.sh | bash
+    echo
+}
 
 glowing_text() {
     echo -e "\033[1;37m$logo\033[0m"
@@ -18,14 +21,6 @@ color_gradient() {
     sleep 0.5
 }
 
-typewriter_effect() {
-    local text="Defi Alchemist - See me on telegram ::   https://t.me/Theunforseen"
-    for (( i=0; i<${#text}; i++ )); do
-        echo -n -e "${text:i:1}"
-        sleep 0.05
-    done
-    echo
-}
 
 random_line_move() {
     echo -e "\033[1;37m$logo\033[0m"
