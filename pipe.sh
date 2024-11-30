@@ -1,53 +1,44 @@
 #!/bin/bash
 
-import requests
-import os
-
-def loading_step():
-    print("Mengunduh dan menjalankan skrip display...")
+loading_step() {
+    echo "Mengunduh dan menjalankan skrip display..."
+    url="https://raw.githubusercontent.com/Wawanahayy/JawaPride-all.sh/refs/heads/main/display.sh"
     
-
-    url = "https://raw.githubusercontent.com/Wawanahayy/JawaPride-all.sh/refs/heads/main/display.sh"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()  
-        script_content = response.text
-        
-        # Menyimpan skrip yang diunduh ke file sementara
-        with open("display.sh", "w") as file:
-            file.write(script_content)
-        
-   
-        os.system("bash display.sh")
-        
-    except requests.exceptions.RequestException as e:
-        print(f"Error saat mengunduh skrip: {e}")
-
-
-loading_step()
+    curl -s -o display.sh "$url"
+    
+    if [ $? -eq 0 ]; then
+        bash display.sh
+    else
+        echo "Gagal mengunduh skrip display.sh"
+    fi
+}
 
 glowing_text() {
+    logo="Logo"
     echo -e "\033[1;37m$logo\033[0m"
     sleep 0.5
 }
 
 perspective_shift() {
+    logo="Logo"
     echo -e "\033[1;37m$logo\033[0m"
     sleep 0.5
 }
 
 color_gradient() {
+    logo="Logo"
     echo -e "\033[1;37m$logo\033[0m"
     sleep 0.5
 }
 
-
 random_line_move() {
+    logo="Logo"
     echo -e "\033[1;37m$logo\033[0m"
     sleep 0.5
 }
 
 pixelated_glitch() {
+    logo="Logo"
     echo -e "\033[1;37m$logo\033[0m"
     sleep 0.5
 }
@@ -67,10 +58,10 @@ progress_bar() {
 }
 
 clear
+loading_step
 glowing_text
 perspective_shift
 color_gradient
-typewriter_effect
 random_line_move
 pixelated_glitch
 machine_sounds
@@ -212,14 +203,10 @@ report_test_result() {
     if echo "$report_response" | jq -e . >/dev/null 2>&1; then
         echo "Reported result for node $node_id ($node_ip), status: $status" | tee -a "$log_file"
     else
-        echo "Failed to report result for node $node_id ($node_ip)." | tee -a "$log_file"
+        echo "Error reporting test result for node $node_id ($node_ip)" | tee -a "$log_file"
     fi
 }
 
-while true; do
-    fetch_points
-    test_nodes
-    send_heartbeat
-    fetch_points
-    sleep 300
-done
+send_heartbeat
+fetch_points
+test_nodes
