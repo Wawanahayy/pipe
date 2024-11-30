@@ -34,8 +34,13 @@ login_user() {
         -H "Content-Type: application/json" \
         -d "{\"email\":\"$email\", \"password\":\"$password\"}")
 
-    echo "Login response: $response"
-    echo "$(echo $response | jq -r .token)" > token.txt
+    if echo "$response" | jq -e . >/dev/null 2>&1; then
+        echo "Login successful!"
+        echo "$(echo $response | jq -r .token)" > token.txt
+    else
+        echo "Login failed: $response"
+        exit 1
+    fi
 }
 
 # Function to fetch the public IP address
@@ -53,6 +58,11 @@ fetch_geo_location() {
 
 # Function to send heartbeat to server
 send_heartbeat() {
+    if [ ! -f token.txt ]; then
+        echo "Error: Token file not found. Please login again."
+        exit 1
+    fi
+
     token=$(cat token.txt)
     username="your_username"
     ip=$(fetch_ip_address)
@@ -69,6 +79,11 @@ send_heartbeat() {
 
 # Function to fetch user points
 fetch_points() {
+    if [ ! -f token.txt ]; then
+        echo "Error: Token file not found. Please login again."
+        exit 1
+    fi
+
     token=$(cat token.txt)
     points_response=$(curl -s -X GET "https://pipe-network-backend.pipecanary.workers.dev/api/points" \
         -H "Authorization: Bearer $token")
@@ -82,6 +97,11 @@ fetch_points() {
 
 # Function to test node latency and report results
 test_nodes() {
+    if [ ! -f token.txt ]; then
+        echo "Error: Token file not found. Please login again."
+        exit 1
+    fi
+
     token=$(cat token.txt)
     nodes_response=$(curl -s -X GET "https://pipe-network-backend.pipecanary.workers.dev/api/nodes" \
         -H "Authorization: Bearer $token")
@@ -127,12 +147,12 @@ report_test_result() {
     node_ip=$2
     latency=$3
 
-    token=$(cat token.txt)
-
-    if [ -z "$token" ]; then
-        echo "Error: No token found. Skipping result reporting." >> node_operations.log
+    if [ ! -f token.txt ]; then
+        echo "Error: Token file not found. Skipping result reporting." >> node_operations.log
         return
     fi
+
+    token=$(cat token.txt)
 
     if [[ "$latency" =~ ^[0-9]+(\.[0-9]+)?$ ]] && (( $(echo "$latency > 0" | bc -l) )); then
         status="online"
