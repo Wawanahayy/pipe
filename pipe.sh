@@ -89,6 +89,7 @@ clear
 welcome_message
 
 # Lanjutkan dengan fungsi lainnya setelah welcome_message
+loading_step
 glowing_text
 perspective_shift
 color_gradient
