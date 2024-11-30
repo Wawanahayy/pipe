@@ -1,113 +1,143 @@
 #!/bin/bash
 
-loading_step() {
-    echo "Mengunduh dan menjalankan skrip display..."
-    curl -s https://raw.githubusercontent.com/Wawanahayy/JawaPride-all.sh/refs/heads/main/display.sh | bash
+# Mengunduh logo dari URL
+logo=$(curl -s https://raw.githubusercontent.com/Wawanahayy/JawaPride-all.sh/refs/heads/main/display.sh)
+
+glowing_text() {
+    echo -e "\033[1;37m$logo\033[0m"
+    sleep 0.5
+}
+
+perspective_shift() {
+    echo -e "\033[1;37m$logo\033[0m"
+    sleep 0.5
+}
+
+color_gradient() {
+    echo -e "\033[1;37m$logo\033[0m"
+    sleep 0.5
+}
+
+typewriter_effect() {
+    local text="Defi Alchemist - See me on telegram ::   https://t.me/Theunforseen"
+    for (( i=0; i<${#text}; i++ )); do
+        echo -n -e "${text:i:1}"
+        sleep 0.05
+    done
     echo
 }
 
-# Function to update system and install dependencies
-update_system() {
-    echo "Updating system..."
-    sudo apt update && sudo apt upgrade -y
+random_line_move() {
+    echo -e "\033[1;37m$logo\033[0m"
+    sleep 0.5
+}
 
-    dependencies=("curl" "jq")
-    for dependency in "${dependencies[@]}"; do
-        if ! dpkg -l | grep -q "$dependency"; then
-            echo "$dependency is not installed. Installing..."
-            sudo apt install "$dependency" -y
-        else
-            echo "$dependency is already installed."
-        fi
+pixelated_glitch() {
+    echo -e "\033[1;37m$logo\033[0m"
+    sleep 0.5
+}
+
+machine_sounds() {
+    for i in {1..3}; do
+        echo -e "\a"
+        sleep 0.3
+        echo -e "\033[1;32m*Whirr* \033[0m"
+        sleep 0.5
     done
 }
 
-# Function to handle user login and store token
-login_user() {
-    echo "Please enter your email:"
-    read -r email
-
-    echo "Please enter your password:"
-    read -s password
-
-    response=$(curl -s -X POST "https://pipe-network-backend.pipecanary.workers.dev/api/login" \
-        -H "Content-Type: application/json" \
-        -d "{\"email\":\"$email\", \"password\":\"$password\"}")
-
-    if echo "$response" | jq -e . >/dev/null 2>&1; then
-        echo "Login successful!"
-        echo "$(echo $response | jq -r .token)" > token.txt
-    else
-        echo "Login failed: $response"
-        exit 1
-    fi
+progress_bar() {
+    echo -e "Loading... \033[1;34m[##########]\033[0m"
+    sleep 0.5
 }
 
-# Function to fetch the public IP address
+clear
+glowing_text
+perspective_shift
+color_gradient
+typewriter_effect
+random_line_move
+pixelated_glitch
+machine_sounds
+progress_bar
+
+clear
+
+# Update dan upgrade sistem
+sudo apt update && sudo apt upgrade -y
+
+dependencies=("curl" "jq")
+
+for dependency in "${dependencies[@]}"; do
+    if ! dpkg -l | grep -q "$dependency"; then
+        echo "$dependency is not installed. Installing..."
+        sudo apt install "$dependency" -y
+    else
+        echo "$dependency is already installed."
+    fi
+done
+
+echo "Please enter your email:"
+read -r email
+
+echo "Please enter your password:"
+read -s password
+
+response=$(curl -s -X POST "https://pipe-network-backend.pipecanary.workers.dev/api/login" \
+    -H "Content-Type: application/json" \
+    -d "{\"email\":\"$email\", \"password\":\"$password\"}")
+
+echo "Login response: $response"
+echo "$(echo $response | jq -r .token)" > token.txt
+
+log_file="node_operations.log"
+
 fetch_ip_address() {
     ip_response=$(curl -s "https://api64.ipify.org?format=json")
     echo "$(echo $ip_response | jq -r .ip)"
 }
 
-# Function to fetch geolocation of IP
 fetch_geo_location() {
     ip=$1
     geo_response=$(curl -s "https://ipapi.co/${ip}/json/")
     echo "$geo_response"
 }
 
-# Function to send heartbeat to server
 send_heartbeat() {
-    if [ ! -f token.txt ]; then
-        echo "Error: Token file not found. Please login again."
-        exit 1
-    fi
-
     token=$(cat token.txt)
     username="your_username"
     ip=$(fetch_ip_address)
     geo_info=$(fetch_geo_location "$ip")
 
     heartbeat_data=$(jq -n --arg username "$username" --arg ip "$ip" --argjson geo_info "$geo_info" '{username: $username, ip: $ip, geo: $geo_info}')
+
     heartbeat_response=$(curl -s -X POST "https://pipe-network-backend.pipecanary.workers.dev/api/heartbeat" \
         -H "Authorization: Bearer $token" \
         -H "Content-Type: application/json" \
         -d "$heartbeat_data")
 
-    echo "Heartbeat response: $heartbeat_response" >> node_operations.log
+    echo "Heartbeat response: $heartbeat_response" | tee -a "$log_file"
 }
 
-# Function to fetch user points
 fetch_points() {
-    if [ ! -f token.txt ]; then
-        echo "Error: Token file not found. Please login again."
-        exit 1
-    fi
-
     token=$(cat token.txt)
     points_response=$(curl -s -X GET "https://pipe-network-backend.pipecanary.workers.dev/api/points" \
         -H "Authorization: Bearer $token")
 
     if echo "$points_response" | jq -e . >/dev/null 2>&1; then
-        echo "User Points Response: $points_response" >> node_operations.log
+        echo "User Points Response: $points_response" | tee -a "$log_file"
     else
-        echo "Error fetching points: $points_response" >> node_operations.log
+        echo "Error fetching points: $points_response" | tee -a "$log_file"
     fi
 }
 
-# Function to test node latency and report results
 test_nodes() {
-    if [ ! -f token.txt ]; then
-        echo "Error: Token file not found. Please login again."
-        exit 1
-    fi
-
     token=$(cat token.txt)
     nodes_response=$(curl -s -X GET "https://pipe-network-backend.pipecanary.workers.dev/api/nodes" \
         -H "Authorization: Bearer $token")
 
     if [ -z "$nodes_response" ]; then
-        echo "Error: No nodes found or failed to fetch nodes." >> node_operations.log
+        echo "Error: No nodes found or failed to fetch nodes." | tee -a "$log_file"
         return
     fi
 
@@ -118,16 +148,15 @@ test_nodes() {
         latency=$(test_node_latency "$node_ip")
 
         if [[ "$latency" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
-            echo "Node ID: $node_id, IP: $node_ip, Latency: ${latency}ms" >> node_operations.log
+            echo "Node ID: $node_id, IP: $node_ip, Latency: ${latency}ms" | tee -a "$log_file"
         else
-            echo "Node ID: $node_id, IP: $node_ip, Latency: Timeout/Error" >> node_operations.log
+            echo "Node ID: $node_id, IP: $node_ip, Latency: Timeout/Error" | tee -a "$log_file"
         fi
 
         report_test_result "$node_id" "$node_ip" "$latency"
     done
 }
 
-# Function to test node latency
 test_node_latency() {
     node_ip=$1
     start=$(date +%s%3N)
@@ -141,18 +170,17 @@ test_node_latency() {
     fi
 }
 
-# Function to report the node test result
 report_test_result() {
     node_id=$1
     node_ip=$2
     latency=$3
 
-    if [ ! -f token.txt ]; then
-        echo "Error: Token file not found. Skipping result reporting." >> node_operations.log
+    token=$(cat token.txt)
+
+    if [ -z "$token" ]; then
+        echo "Error: No token found. Skipping result reporting." | tee -a "$log_file"
         return
     fi
-
-    token=$(cat token.txt)
 
     if [[ "$latency" =~ ^[0-9]+(\.[0-9]+)?$ ]] && (( $(echo "$latency > 0" | bc -l) )); then
         status="online"
@@ -163,17 +191,16 @@ report_test_result() {
 
     report_response=$(curl -s -X POST "https://pipe-network-backend.pipecanary.workers.dev/api/test" \
         -H "Authorization: Bearer $token" \
-        -H "Content-Type : application/json" \
+        -H "Content-Type: application/json" \
         -d "{\"node_id\": \"$node_id\", \"ip\": \"$node_ip\", \"latency\": $latency, \"status\": \"$status\"}")
 
     if echo "$report_response" | jq -e . >/dev/null 2>&1; then
-        echo "Reported result for node $node_id ($node_ip), status: $status" >> node_operations.log
+        echo "Reported result for node $node_id ($node_ip), status: $status" | tee -a "$log_file"
     else
-        echo "Failed to report result for node $node_id ($node_ip)." >> node_operations.log
+        echo "Failed to report result for node $node_id ($node_ip)." | tee -a "$log_file"
     fi
 }
 
-# Main loop to run the operations every 5 minutes
 while true; do
     fetch_points
     test_nodes
