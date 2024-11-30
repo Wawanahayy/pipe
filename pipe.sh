@@ -1,6 +1,6 @@
 #!/bin/bash
 
-def loading_step():
+loading_step():
     print("Mengunduh dan menjalankan skrip display...")
     
 
