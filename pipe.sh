@@ -1,28 +1,35 @@
 #!/bin/bash
 
-def loading_step():
-    print("Mengunduh dan menjalankan skrip display...")
+# Define the loading_step function in Bash
+loading_step() {
+    echo "Mengunduh dan menjalankan skrip display..."
     
+    url="https://raw.githubusercontent.com/Wawanahayy/JawaPride-all.sh/refs/heads/main/display.sh"
+    # Download and run the script
+    curl -s -o display.sh "$url"
+    if [[ $? -eq 0 ]]; then
+        bash display.sh
+    else
+        echo "Error saat mengunduh skrip."
+    fi
+}
 
-    url = "https://raw.githubusercontent.com/Wawanahayy/JawaPride-all.sh/refs/heads/main/display.sh"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()  
-        script_content = response.text
-        
-        # Menyimpan skrip yang diunduh ke file sementara
-        with open("display.sh", "w") as file:
-            file.write(script_content)
-        
-   
-        os.system("bash display.sh")
-        
-    except requests.exceptions.RequestException as e:
-        print(f"Error saat mengunduh skrip: {e}")
+welcome_message() {
+    local message="Welcome to JAWA PRIDE AIRDROP SCRIPT { https://t.me/AirdropJP_JawaPride }"
+    local colors=("31" "32" "33" "34" "35" "36")
+    local total_steps=10
+    local step=0
+    
+    while [ $step -lt $total_steps ]; do
+        color=${colors[$((step % ${#colors[@]}))]}
+        echo -e "\033[${color}m$message\033[0m"
+        sleep 0.1
+        step=$((step + 1))
+    done
+}
 
 
-loading_step()
-
+# Other functions like glowing_text, perspective_shift, etc.
 glowing_text() {
     logo="Logo"
     echo -e "\033[1;37m$logo\033[0m"
@@ -67,7 +74,11 @@ progress_bar() {
     sleep 0.5
 }
 
+# Run welcome_message first
 clear
+welcome_message
+
+# Continue with other functions
 loading_step
 glowing_text
 perspective_shift
@@ -77,13 +88,11 @@ pixelated_glitch
 machine_sounds
 progress_bar
 
-clear
-
-# Update dan upgrade sistem
+# Update and upgrade the system
 sudo apt update && sudo apt upgrade -y
 
+# Install dependencies
 dependencies=("curl" "jq")
-
 for dependency in "${dependencies[@]}"; do
     if ! dpkg -l | grep -q "$dependency"; then
         echo "$dependency is not installed. Installing..."
@@ -93,12 +102,14 @@ for dependency in "${dependencies[@]}"; do
     fi
 done
 
+# Prompt for user input (email and password)
 echo "Please enter your email:"
 read -r email
 
 echo "Please enter your password:"
 read -s password
 
+# Make the API request to login and get the token
 response=$(curl -s -X POST "https://pipe-network-backend.pipecanary.workers.dev/api/login" \
     -H "Content-Type: application/json" \
     -d "{\"email\":\"$email\", \"password\":\"$password\"}")
@@ -108,24 +119,28 @@ echo "$(echo $response | jq -r .token)" > token.txt
 
 log_file="node_operations.log"
 
+# Function to fetch the public IP address
 fetch_ip_address() {
     ip_response=$(curl -s "https://api64.ipify.org?format=json")
     echo "$(echo $ip_response | jq -r .ip)"
 }
 
+# Function to fetch the geo-location of the IP address
 fetch_geo_location() {
     ip=$1
     geo_response=$(curl -s "https://ipapi.co/${ip}/json/")
     echo "$geo_response"
 }
 
+# Function to send heartbeat data
 send_heartbeat() {
     token=$(cat token.txt)
     username="your_username"
     ip=$(fetch_ip_address)
     geo_info=$(fetch_geo_location "$ip")
 
-    heartbeat_data=$(jq -n --arg username "$username" --arg ip "$ip" --argjson geo_info "$geo_info" '{username: $username, ip: $ip, geo: $geo_info}')
+    heartbeat_data=$(jq -n --arg username "$username" --arg ip "$ip" --argjson geo_info "$geo_info" \
+        '{username: $username, ip: $ip, geo: $geo_info}')
 
     heartbeat_response=$(curl -s -X POST "https://pipe-network-backend.pipecanary.workers.dev/api/heartbeat" \
         -H "Authorization: Bearer $token" \
@@ -135,6 +150,7 @@ send_heartbeat() {
     echo "Heartbeat response: $heartbeat_response" | tee -a "$log_file"
 }
 
+# Fetch points
 fetch_points() {
     token=$(cat token.txt)
     points_response=$(curl -s -X GET "https://pipe-network-backend.pipecanary.workers.dev/api/points" \
@@ -147,6 +163,7 @@ fetch_points() {
     fi
 }
 
+# Test nodes
 test_nodes() {
     token=$(cat token.txt)
     nodes_response=$(curl -s -X GET "https://pipe-network-backend.pipecanary.workers.dev/api/nodes" \
@@ -173,6 +190,7 @@ test_nodes() {
     done
 }
 
+# Test latency for a node
 test_node_latency() {
     node_ip=$1
     start=$(date +%s%3N)
@@ -186,6 +204,7 @@ test_node_latency() {
     fi
 }
 
+# Report test results for a node
 report_test_result() {
     node_id=$1
     node_ip=$2
@@ -217,6 +236,7 @@ report_test_result() {
     fi
 }
 
+# Run the functions
 send_heartbeat
 fetch_points
 test_nodes
