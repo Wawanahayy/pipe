@@ -24,20 +24,17 @@ def loading_step():
 loading_step()
 
 
-# Fungsi untuk menampilkan pesan dengan warna yang berubah
 welcome_message() {
-    local message="Welcome to JAWA PRIDE AIRDROP SCRIPT { https://t.me/AirdropJP_JawaPride } "
+    local message="Welcome to JAWA PRIDE AIRDROP SCRIPT { https://t.me/AirdropJP_JawaPride }"
     local colors=("31" "32" "33" "34" "35" "36")
     
     for ((i=0; i<10; i++)); do
-        # Menentukan warna acak dari array
         color=${colors[$((RANDOM % ${#colors[@]}))]}
-        
-        # Menampilkan pesan dengan warna yang berubah
         echo -e "\033[${color}m$message\033[0m"
         sleep 0.5
     done
 }
+
 
 # Fungsi lainnya
 glowing_text() {
